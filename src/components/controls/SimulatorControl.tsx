@@ -8,32 +8,31 @@ import IconGeneral from "../layout/IconGeneral";
 
 const SimulatorControl = () => {
   const [athleteCount, setAthleteCount] = useState<string>('');
-  const [status, setStatus] = useState("");
 
   const startSimulation = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/start", { athleteCount });
-      alert(res.data.message);
+      const res = await axios.post("http://localhost:4000/start", { athleteCount });
+      console.log(res.data.message);
     } catch (error) {
-      alert("Failed to start simulation");
+      console.error("Failed to start simulation: ", error);
     }
   };
 
   const stopSimulation = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/stop");
-      alert(res.data.message);
+      const res = await axios.post("http://localhost:4000/stop");
+      console.log(res.data.message);
     } catch (error) {
-      alert("Failed to stop simulation");
+      console.error("Failed to stop simulation: ", error);
     }
   };
 
   const adjustAthletes = async () => {
     try {
-      const res = await axios.post("http://localhost:3000/adjust", { newAthleteCount: athleteCount });
-      alert(res.data.message);
+      const res = await axios.post("http://localhost:4000/adjust", { athleteCount });
+      console.log(res.data.message);
     } catch (error) {
-      alert("Failed to adjust athletes");
+      console.error("Failed to adjust athletes: ", error);
     }
   };
 

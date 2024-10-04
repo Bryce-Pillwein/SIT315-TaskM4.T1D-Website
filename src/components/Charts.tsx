@@ -66,23 +66,25 @@ const Charts = () => {
 
   return (
     <div className="my-8">
-      <h2 className="text-xl font-semibold text-center">{selectedAthlete.name} - Performance</h2>
+      <h2 className="text-2xl font-bold text-center">{selectedAthlete.name}</h2>
+      <p className="text-sm text-hsl-l50 text-center mb-4">Performance</p>
+
 
       <div className='grid grid-cols-3 gap-x-4'>
         {/* Heart Rate Chart */}
-        <div className='bg-hsl-l100 p-4 rounded-md shadow-md border border-hsl-l95'>
+        <div className='bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95'>
           <h3 className="text-center font-semibold text-sm">Heart Rate Over Time</h3>
           <Line data={heartRateData} />
         </div>
 
         {/* Total Distance Chart */}
-        <div className='bg-hsl-l100 p-4 rounded-md shadow-md border border-hsl-l95'>
+        <div className='bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95'>
           <h3 className="text-center font-semibold text-sm">Total Distance Over Time</h3>
           <Line data={totalDistanceData} />
         </div>
 
         {/* Elevation Gain Chart */}
-        <div className='bg-hsl-l100 p-4 rounded-md shadow-md border border-hsl-l95'>
+        <div className='bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95'>
           <h3 className="text-center font-semibold text-sm">Elevation Gain Over Time</h3>
           <Line data={elevationGainData} />
         </div>
