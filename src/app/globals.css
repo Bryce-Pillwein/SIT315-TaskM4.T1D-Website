@@ -2,26 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Style Reset*/
+@import '../styles/reset';
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+
+@layer base {
+  body {
+    background-color: theme('colors.hsl.l98');
+    color: theme('colors.hsl.l5');
   }
-}
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  .dark body {
+    background-color: theme('colors.hsl.l13');
+    color: theme('colors.hsl.l95');
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /*
+    || Container (Screen layout)
+  */
+  .app-container {
+    width: 93%;
+    margin-inline: auto;
+  }
+
+
+  /*
+    || Default Input
+  */
+  .df-input {
+    resize: none;
+    border: none;
+    outline: 1px solid theme('colors.hsl.l90');
+    background-color: theme('colors.hsl.l95');
+    border-radius: 0.25rem;
+    padding: 0.25lh 0.5lh;
+  }
+
+  .dark .df-input {
+    background-color: theme('colors.hsl.l20');
+    outline: 1px solid theme('colors.hsl.l25');
+  }
+
+  .df-input:focus {
+    outline: 1px solid theme('colors.mb.pink');
+  }
+
+  .dark .df-input:focus {
+    outline: 1px solid theme('colors.mb.yellow');
+  }
+
+  .df-input::placeholder {
+    color: theme('colors.hsl.l50');
   }
 }
