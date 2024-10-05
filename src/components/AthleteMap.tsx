@@ -77,6 +77,9 @@ const AthleteMap = () => {
       client.end();
     };
   }, []);
+
+
+
   return (
     <div className="bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95">
       <MapContainer center={[-37.84986, 145.11481]} zoom={13} style={{ height: "500px", width: "100%" }}>

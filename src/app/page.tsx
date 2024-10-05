@@ -6,6 +6,7 @@ import AthleteDetails from "@/components/AthleteDetails";
 // import AthleteHistory from "@/components/AthleteHistory";
 import AthleteList from "@/components/AthleteList";
 import Charts from "@/components/Charts";
+import Monitor from "@/components/controls/Monitor";
 import Header from "@/components/layout/Header";
 import { AthleteDataProvider } from "@/components/providers/AthleteDataProvider";
 import dynamic from "next/dynamic";
@@ -33,6 +34,8 @@ function Dashboard() {
       </div>
 
       <Charts />
+
+      <Monitor />
     </div>
   );
 }

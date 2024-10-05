@@ -3,38 +3,36 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import IconGeneral from "../layout/IconGeneral";
+import mqtt from "mqtt";
 
 const SimulatorControl = () => {
   const [athleteCount, setAthleteCount] = useState<string>('');
+  const client = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
 
-  const startSimulation = async () => {
-    try {
-      const res = await axios.post("http://localhost:4000/start", { athleteCount });
-      console.log(res.data.message);
-    } catch (error) {
-      console.error("Failed to start simulation: ", error);
-    }
+  const startSimulation = () => {
+    // Publish the athleteCount to the start topic for all containers
+    client.publish('simulation/start', String(athleteCount), { qos: 0 }, (error) => {
+      if (error) {
+        console.error('Failed to publish start message: ', error);
+      } else {
+        console.log('Published start message to all containers');
+      }
+    });
   };
 
-  const stopSimulation = async () => {
-    try {
-      const res = await axios.post("http://localhost:4000/stop");
-      console.log(res.data.message);
-    } catch (error) {
-      console.error("Failed to stop simulation: ", error);
-    }
+  // Function to stop the simulation for all containers
+  const stopSimulation = () => {
+    // Publish a stop message to the stop topic for all containers
+    client.publish('simulation/stop', '', { qos: 0 }, (error) => {
+      if (error) {
+        console.error('Failed to publish stop message: ', error);
+      } else {
+        console.log('Published stop message to all containers');
+      }
+    });
   };
 
-  const adjustAthletes = async () => {
-    try {
-      const res = await axios.post("http://localhost:4000/adjust", { athleteCount });
-      console.log(res.data.message);
-    } catch (error) {
-      console.error("Failed to adjust athletes: ", error);
-    }
-  };
 
   return (
     <div>
@@ -43,11 +41,6 @@ const SimulatorControl = () => {
         <input type="text" id="ath" name="ath" placeholder="No. of Athletes"
           className='df-input text-sm'
           value={athleteCount} onChange={(e) => setAthleteCount(e.target.value)} autoComplete="off" />
-
-        <button type="button" onClick={adjustAthletes}
-          className="bg-cyan-500 hover:bg-cyan-600 p-1 rounded-md flex justify-center items-center mr-8">
-          <IconGeneral type="sync" className="fill-cyan-200" />
-        </button>
 
         <button type="button" onClick={startSimulation}
           className="bg-emerald-600  hover:bg-emerald-500 p-1 rounded-md flex justify-center items-center">

@@ -4,6 +4,9 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { getAthleteHistory, getAthleteIds, getLatestAthleteData } from '@/services';
 import { Athlete } from '@/types/Athlete';
 import { AthleteData } from '@/types/AthleteData';
+import getAthleteIdsOnce from '@/services/getAtheleteIdsOnce';
+import getAthleteHistoryOnce from '@/services/getAtheleteHistoryOnce';
+import getLatestAthleteDataOnce from '@/services/getLatestAtheleteDataOnce';
 
 interface AthleteDataContextType {
   athlete: Athlete[];
@@ -13,6 +16,7 @@ interface AthleteDataContextType {
   historicalData: Record<string, AthleteData[]>;
   latestData: Record<string, AthleteData | null>;
   loading: boolean;
+  fetchAllAthleteData: () => void;
 }
 
 const AthleteDataContext = createContext<AthleteDataContextType | undefined>(undefined);
@@ -29,71 +33,85 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
   const [latestData, setLatestData] = useState<Record<string, AthleteData | null>>({});
   const [loading, setLoading] = useState(false);
 
-  /**
-   * Fetch Athlete IDs and Names in Real-Time
-   */
-  useEffect(() => {
-    const unsubscribeIds = getAthleteIds((athletes: Athlete[]) => {
-      setAthlete(athletes);
-    });
 
-    return () => unsubscribeIds();
-  }, []);
-
-  /**
-   * Fetch Athlete Historical Data for all Athletes
-   */
-  useEffect(() => {
-    const unsubscribers: (() => void)[] = athlete.map((athlete) => {
-      return getAthleteHistory(athlete, (data: AthleteData[]) => {
-        setHistoricalData((prevData) => ({
-          ...prevData,
-          [athlete.id]: data, // Store historical data for each athlete
-        }));
-      });
-    });
-
-    return () => {
-      unsubscribers.forEach(unsubscribe => unsubscribe());
-    };
-  }, [athlete]);
-
-  /**
-   * Fetch data for the selected athlete in real-time
-   */
-  useEffect(() => {
-    if (selectedAthlete) {
+  const fetchAllAthleteData = async () => {
+    try {
       setLoading(true);
-      const unsubscribe = getAthleteHistory(selectedAthlete, (data: AthleteData[]) => {
-        setAthleteData(data); // Set the athlete data for the selected athlete
-        setLoading(false);
-      });
 
-      return () => unsubscribe();
+      // Fetch all athlete data
+      await fetchAthleteIds();
+      await fetchAthleteHistory();
+      await fetchLatestAthleteData();
+
+    } catch (error) {
+      console.error("Error fetching athlete data:", error);
+    } finally {
+      setLoading(false);
     }
-  }, [selectedAthlete]);
+  };
 
   /**
- * Fetch Latest Athlete Data for all Athletes
- */
-  useEffect(() => {
-    const unsubscribers: (() => void)[] = athlete.map((athlete) => {
-      return getLatestAthleteData(athlete, (data: AthleteData | null) => {
-        setLatestData((prevData) => ({
-          ...prevData,
-          [athlete.id]: data, // Store latest data for each athlete
-        }));
-      });
+   * On-Demand
+   * Fetch Athlete Ids
+   */
+  const fetchAthleteIds = async () => {
+    setLoading(true);
+    const athletes = await getAthleteIdsOnce();
+    setAthlete(athletes);
+    setLoading(false);
+  };
+
+  /**
+   * On-Demand
+   * Fetch Athlete History
+   */
+  const fetchAthleteHistory = async () => {
+    if (athlete.length === 0) return;
+
+    setLoading(true);
+    const historyData = await Promise.all(
+      athlete.map(async (athlete) => {
+        const data = await getAthleteHistoryOnce(athlete);
+        return { athleteId: athlete.id, data };
+      })
+    );
+
+    const updatedHistory = historyData.reduce((acc, { athleteId, data }) => {
+      acc[athleteId] = data;
+      return acc;
+    }, {} as Record<string, AthleteData[]>);
+
+    setHistoricalData(updatedHistory);
+    setLoading(false);
+  };
+
+  /**
+   * On-Demand
+   * Fetch Athlete Latest
+   */
+  const fetchLatestAthleteData = async () => {
+    if (athlete.length === 0) return;
+
+    setLoading(true);
+    const latestDataPromises = athlete.map(async (athlete) => {
+      const data = await getLatestAthleteDataOnce(athlete);
+      return { athleteId: athlete.id, data };
     });
 
-    return () => {
-      unsubscribers.forEach(unsubscribe => unsubscribe());
-    };
-  }, [athlete]);
+    const latestDataResults = await Promise.all(latestDataPromises);
+
+    const updatedLatestData = latestDataResults.reduce((acc, { athleteId, data }) => {
+      acc[athleteId] = data;
+      return acc;
+    }, {} as Record<string, AthleteData | null>);
+
+    setLatestData(updatedLatestData);
+    setLoading(false);
+  };
 
   return (
     <AthleteDataContext.Provider
-      value={{ athlete, selectedAthlete, setSelectedAthlete, athleteData, historicalData, latestData, loading, }} >
+      value={{ athlete, selectedAthlete, setSelectedAthlete, athleteData, historicalData, latestData, loading, fetchAllAthleteData }} >
       {children}
     </AthleteDataContext.Provider>
   );
@@ -107,3 +125,76 @@ export const useAthleteDataContext = (): AthleteDataContextType => {
   }
   return context;
 };
+
+
+
+
+/**
+ * The Following functions use automatic updates and case
+ * a high level of database reads, as they continue to query on every
+ * database update. This caused over 50k data reads within a single day.
+ * This would be useful for realtime events but not for the FREE version of Firebase!
+ * As such, I have moved to use On-Demand Functions. "Button Click"
+ */
+
+/**
+ * Fetch Athlete IDs and Names in Real-Time
+ */
+// useEffect(() => {
+//   const unsubscribeIds = getAthleteIds((athletes: Athlete[]) => {
+//     setAthlete(athletes);
+//   });
+
+//   return () => unsubscribeIds();
+// }, []);
+
+/**
+ * Fetch Athlete Historical Data for all Athletes
+ */
+// useEffect(() => {
+//   const unsubscribers: (() => void)[] = athlete.map((athlete) => {
+//     return getAthleteHistory(athlete, (data: AthleteData[]) => {
+//       setHistoricalData((prevData) => ({
+//         ...prevData,
+//         [athlete.id]: data, // Store historical data for each athlete
+//       }));
+//     });
+//   });
+
+//   return () => {
+//     unsubscribers.forEach(unsubscribe => unsubscribe());
+//   };
+// }, [athlete]);
+
+/**
+ * Fetch data for the selected athlete in real-time
+ */
+// useEffect(() => {
+//   if (selectedAthlete) {
+//     setLoading(true);
+//     const unsubscribe = getAthleteHistory(selectedAthlete, (data: AthleteData[]) => {
+//       setAthleteData(data); // Set the athlete data for the selected athlete
+//       setLoading(false);
+//     });
+
+//     return () => unsubscribe();
+//   }
+// }, [selectedAthlete]);
+
+/**
+ * Fetch Latest Athlete Data for all Athletes
+ */
+// useEffect(() => {
+//   const unsubscribers: (() => void)[] = athlete.map((athlete) => {
+//     return getLatestAthleteData(athlete, (data: AthleteData | null) => {
+//       setLatestData((prevData) => ({
+//         ...prevData,
+//         [athlete.id]: data, // Store latest data for each athlete
+//       }));
+//     });
+//   });
+
+//   return () => {
+//     unsubscribers.forEach(unsubscribe => unsubscribe());
+//   };
+// }, [athlete]);
