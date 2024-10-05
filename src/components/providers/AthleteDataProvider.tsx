@@ -14,7 +14,7 @@ interface AthleteDataContextType {
   setSelectedAthlete: (athlete: Athlete) => void;
   athleteData: AthleteData[] | null;
   historicalData: Record<string, AthleteData[]>;
-  latestData: Record<string, AthleteData | null>;
+  latestData: AthleteData | null;
   loading: boolean;
   fetchAllAthleteData: () => void;
 }
@@ -30,7 +30,7 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
   const [selectedAthlete, setSelectedAthlete] = useState<Athlete | null>(null);
   const [athleteData, setAthleteData] = useState<AthleteData[] | null>(null);
   const [historicalData, setHistoricalData] = useState<Record<string, AthleteData[]>>({});
-  const [latestData, setLatestData] = useState<Record<string, AthleteData | null>>({});
+  const [latestData, setLatestData] = useState<AthleteData | null>(null);
   const [loading, setLoading] = useState(false);
 
 
@@ -39,10 +39,12 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
       setLoading(true);
 
       // Fetch all athlete data
-      await fetchAthleteIds();
-      await fetchAthleteHistory();
-      await fetchLatestAthleteData();
-
+      const athletes = await fetchAthleteIds();
+      console.log(athletes);
+      if (athletes) {
+        setAthlete(athletes);
+        await fetchAthleteHistory(athletes);
+      }
     } catch (error) {
       console.error("Error fetching athlete data:", error);
     } finally {
@@ -55,22 +57,24 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
    * Fetch Athlete Ids
    */
   const fetchAthleteIds = async () => {
-    setLoading(true);
-    const athletes = await getAthleteIdsOnce();
-    setAthlete(athletes);
-    setLoading(false);
+    try {
+      const athletes = await getAthleteIdsOnce();
+      return athletes;
+    } catch (error) {
+      console.error('Error getting athlete Ids: ', error);
+    }
   };
 
   /**
    * On-Demand
    * Fetch Athlete History
    */
-  const fetchAthleteHistory = async () => {
-    if (athlete.length === 0) return;
+  const fetchAthleteHistory = async (athletes: Athlete[]) => {
+    if (athletes.length <= 0) return;
 
     setLoading(true);
     const historyData = await Promise.all(
-      athlete.map(async (athlete) => {
+      athletes.map(async (athlete) => {
         const data = await getAthleteHistoryOnce(athlete);
         return { athleteId: athlete.id, data };
       })
@@ -89,29 +93,32 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
    * On-Demand
    * Fetch Athlete Latest
    */
-  const fetchLatestAthleteData = async () => {
-    if (athlete.length === 0) return;
+  useEffect(() => {
+    if (!selectedAthlete) return;
 
-    setLoading(true);
-    const latestDataPromises = athlete.map(async (athlete) => {
-      const data = await getLatestAthleteDataOnce(athlete);
-      return { athleteId: athlete.id, data };
-    });
+    const fetchLatestAthleteData = async () => {
+      try {
+        const data = await getLatestAthleteDataOnce(selectedAthlete);
+        if (!data) return;
 
-    const latestDataResults = await Promise.all(latestDataPromises);
+        setLatestData(data);
+      } catch (error) {
+        console.error('Error getting latest athlete data: ', error);
+      }
+    };
 
-    const updatedLatestData = latestDataResults.reduce((acc, { athleteId, data }) => {
-      acc[athleteId] = data;
-      return acc;
-    }, {} as Record<string, AthleteData | null>);
+    fetchLatestAthleteData();
+  }, [selectedAthlete]);
 
-    setLatestData(updatedLatestData);
-    setLoading(false);
-  };
+
+
 
   return (
     <AthleteDataContext.Provider
-      value={{ athlete, selectedAthlete, setSelectedAthlete, athleteData, historicalData, latestData, loading, fetchAllAthleteData }} >
+      value={{
+        athlete, selectedAthlete, setSelectedAthlete, athleteData, historicalData, latestData, loading,
+        fetchAllAthleteData
+      }} >
       {children}
     </AthleteDataContext.Provider>
   );

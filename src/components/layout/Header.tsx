@@ -24,18 +24,19 @@ export default function Header() {
 
       <SimulatorControl />
 
-      <button type="button" onClick={fetchAllAthleteData}
-        className="group flex justify-center items-center gap-x-2 px-4 py-2 bg-hsl-l95 hover:bg-mb-pink rounded-md text-sm">
-        <IconGeneral type="bolt" className="fill-mb-pink group-hover:fill-hsl-l100" />
-        <p className="font-medium group-hover:text-hsl-l100">Retrieve Data</p>
-      </button>
+      <div className="flex gap-x-4">
+        <button type="button" onClick={fetchAllAthleteData}
+          className="group flex justify-center items-center gap-x-2 px-4 py-2 bg-hsl-l95 hover:bg-mb-pink rounded-md text-sm">
+          <IconGeneral type="sync" className="fill-hsl-l50 group-hover:fill-hsl-l100" />
+          <p className="font-medium group-hover:text-hsl-l100">Retrieve Data</p>
+        </button>
 
-      <button type="button" onClick={deleteAllData}
-        className="group flex justify-center items-center gap-x-2 px-4 py-2 bg-hsl-l95 hover:bg-mb-pink rounded-md text-sm"
-      >
-        <IconGeneral type="delete" className="fill-hsl-l50 group-hover:fill-hsl-l100" size={18} />
-        <p className="font-medium group-hover:text-hsl-l100">Database</p>
-      </button>
+        <button type="button" onClick={deleteAllData}
+          className="group flex justify-center items-center gap-x-2 px-4 py-2 bg-hsl-l95 hover:bg-mb-pink rounded-md text-sm">
+          <IconGeneral type="delete" className="fill-hsl-l50 group-hover:fill-hsl-l100" size={18} />
+          <p className="font-medium group-hover:text-hsl-l100">Database</p>
+        </button>
+      </div>
     </header>
   );
 }

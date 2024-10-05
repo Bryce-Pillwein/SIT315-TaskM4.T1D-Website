@@ -14,9 +14,18 @@ const AthleteDetails = () => {
 
 
   // Function to calculate pace in minutes per kilometer
-  const calculatePace = (startTime: string, totalDistance: number) => {
+  const calculatePace = (startTime: any, totalDistance: number) => {
     const currentTime = new Date();
-    const start = new Date(startTime);
+
+    let start: Date;
+
+    // Check if startTime is a Firestore Timestamp and convert it
+    if (startTime.seconds && startTime.nanoseconds) {
+      start = new Date(startTime.seconds * 1000 + startTime.nanoseconds / 1000000);
+    } else {
+      // Assume startTime is already a Date object
+      start = new Date(startTime);
+    }
 
     // Time difference in minutes
     const timeDiffInMinutes = (currentTime.getTime() - start.getTime()) / (1000 * 60);
@@ -26,10 +35,11 @@ const AthleteDetails = () => {
   };
 
   useEffect(() => {
-    if (selectedAthlete && latestData[selectedAthlete.id]) {
-      const athleteData = latestData[selectedAthlete.id];
+    if (latestData) {
+      const athleteData = latestData;
       setAthlete(athleteData);
 
+      console.log(athleteData.startTime, athleteData.totalDistance);
       // Calculate pace based on startTime and totalDistance
       if (athleteData?.startTime && athleteData.totalDistance) {
         const calculatedPace = calculatePace(athleteData.startTime, athleteData.totalDistance);
@@ -37,7 +47,6 @@ const AthleteDetails = () => {
       }
     }
   }, [selectedAthlete, latestData]);
-
 
   return (
     <div className="bg-hsl-l100 shadow-sm rounded-lg border border-hsl-l95 py-8 px-4 h-full">

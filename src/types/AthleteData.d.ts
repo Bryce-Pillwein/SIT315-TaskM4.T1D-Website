@@ -12,5 +12,5 @@ export interface AthleteData {
   elevationGain: number;
   totalCalories: number;
   timestamp: string;
-  startTime?: string;
+  startTime?: Date;
 }
