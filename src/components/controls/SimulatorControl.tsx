@@ -35,23 +35,19 @@ const SimulatorControl = () => {
 
 
   return (
-    <div>
-      <h1 className="text-xxs text-hsl-l50 font-medium text-center">Simulator Control</h1>
-      <div className="flex items-center justify-center gap-x-4">
-        <input type="text" id="ath" name="ath" placeholder="No. of Athletes"
-          className='df-input text-sm'
-          value={athleteCount} onChange={(e) => setAthleteCount(e.target.value)} autoComplete="off" />
+    <div className="flex items-center justify-center gap-x-4">
+      <input type="text" id="ath" name="ath" placeholder="No. of Athletes"
+        className='df-input text-sm'
+        value={athleteCount} onChange={(e) => setAthleteCount(e.target.value)} autoComplete="off" />
 
-        <button type="button" onClick={startSimulation}
-          className="bg-emerald-600  hover:bg-emerald-500 p-1 rounded-md flex justify-center items-center">
-          <IconGeneral type="start" className="fill-emerald-300" />
-        </button>
-        <button type="button" onClick={stopSimulation}
-          className="bg-rose-500 hover:bg-rose-600 p-1 rounded-md flex justify-center items-center">
-          <IconGeneral type="stop" className="fill-rose-400" />
-        </button>
-
-      </div>
+      <button type="button" onClick={startSimulation}
+        className="bg-cyan-600  hover:bg-cyan-500 p-1 rounded-md flex justify-center items-center">
+        <IconGeneral type="start" className="fill-cyan-300" />
+      </button>
+      <button type="button" onClick={stopSimulation}
+        className="bg-rose-500 hover:bg-rose-600 p-1 rounded-md flex justify-center items-center">
+        <IconGeneral type="stop" className="fill-rose-400" />
+      </button>
     </div>
   );
 };

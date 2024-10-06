@@ -1,12 +1,13 @@
 // Athlete Data Provider tsx
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { getAthleteHistory, getAthleteIds, getLatestAthleteData } from '@/services';
+import {
+  getAthleteHistory, getAthleteIds, getLatestAthleteData,
+  getAthleteIdsOnce, getLatestAthleteDataOnce, getAthleteHistoryOnce,
+  getLeaderBoard
+} from '@/services';
 import { Athlete } from '@/types/Athlete';
 import { AthleteData } from '@/types/AthleteData';
-import getAthleteIdsOnce from '@/services/getAtheleteIdsOnce';
-import getAthleteHistoryOnce from '@/services/getAtheleteHistoryOnce';
-import getLatestAthleteDataOnce from '@/services/getLatestAtheleteDataOnce';
 
 interface AthleteDataContextType {
   athlete: Athlete[];
@@ -15,6 +16,7 @@ interface AthleteDataContextType {
   athleteData: AthleteData[] | null;
   historicalData: Record<string, AthleteData[]>;
   latestData: AthleteData | null;
+  leaderBoard: AthleteData[] | null;
   loading: boolean;
   fetchAllAthleteData: () => void;
 }
@@ -30,6 +32,7 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
   const [selectedAthlete, setSelectedAthlete] = useState<Athlete | null>(null);
   const [athleteData, setAthleteData] = useState<AthleteData[] | null>(null);
   const [historicalData, setHistoricalData] = useState<Record<string, AthleteData[]>>({});
+  const [leaderBoard, setLeaderBoard] = useState<AthleteData[] | null>(null);
   const [latestData, setLatestData] = useState<AthleteData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -40,11 +43,16 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
 
       // Fetch all athlete data
       const athletes = await fetchAthleteIds();
-      console.log(athletes);
+
+      // History for graphs
       if (athletes) {
         setAthlete(athletes);
         await fetchAthleteHistory(athletes);
       }
+
+      // Leaders for leader board
+      const leaders = await getLeaderBoard();
+      setLeaderBoard(leaders);
     } catch (error) {
       console.error("Error fetching athlete data:", error);
     } finally {
@@ -116,7 +124,9 @@ export const AthleteDataProvider: React.FC<AthleteDataProviderProps> = ({ childr
   return (
     <AthleteDataContext.Provider
       value={{
-        athlete, selectedAthlete, setSelectedAthlete, athleteData, historicalData, latestData, loading,
+        athlete, selectedAthlete, setSelectedAthlete,
+        athleteData, historicalData, latestData, leaderBoard,
+        loading,
         fetchAllAthleteData
       }} >
       {children}

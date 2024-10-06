@@ -6,7 +6,7 @@ import React from "react";
 import { Line } from "react-chartjs-2";
 import { AthleteData } from "../types/AthleteData";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-import { useAthleteDataContext } from './providers/AthleteDataProvider';
+import { useAthleteDataContext } from "./providers/AthleteDataProvider";
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
@@ -51,8 +51,8 @@ const Charts = () => {
           label,
           data,
           fill: false,
-          borderColor: 'rgba(75, 192, 192, 1)',
-          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: "rgba(75, 192, 192, 1)",
+          backgroundColor: "rgba(75, 192, 192, 0.2)",
           tension: 0.1,
         },
       ],
@@ -60,17 +60,14 @@ const Charts = () => {
   };
 
   // Chart data for heart rate, elevation gain, and total distance
-  const heartRateData = generateChartData('Heart Rate (BPM)', 'heartRate');
-  const elevationGainData = generateChartData('Elevation Gain (m)', 'elevationGain');
-  const totalDistanceData = generateChartData('Total Distance (m)', 'totalDistance');
+  const heartRateData = generateChartData("Heart Rate (BPM)", "heartRate");
+  const elevationGainData = generateChartData("Elevation Gain (m)", "elevationGain");
+  const totalDistanceData = generateChartData("Total Distance (m)", "totalDistance");
 
   return (
-    <div className="my-8">
-      <h2 className="text-2xl font-bold text-center">{selectedAthlete.name}</h2>
-      <p className="text-sm text-hsl-l50 text-center mb-4">Performance</p>
+    <div className="max-h-[90vh] overflow-scroll custom-scrollbar ">
 
-
-      <div className='grid grid-cols-3 gap-x-4'>
+      <div className="grid grid-cols-1 gap-4">
         {/* Heart Rate Chart */}
         <div className='bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95'>
           <h3 className="text-center font-semibold text-sm">Heart Rate Over Time</h3>

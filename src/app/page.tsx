@@ -2,40 +2,32 @@
 
 "use client";
 
-import AthleteDetails from "@/components/AthleteDetails";
-// import AthleteHistory from "@/components/AthleteHistory";
-import AthleteList from "@/components/AthleteList";
-import Charts from "@/components/Charts";
-import Monitor from "@/components/controls/Monitor";
 import Header from "@/components/layout/Header";
+import AthleteBoard from "@/components/pages/AthleteBoard";
+import LeaderBoard from "@/components/pages/LeaderBoard";
+import MetricBoard from "@/components/pages/MetricBoard";
 import { AthleteDataProvider } from "@/components/providers/AthleteDataProvider";
-import dynamic from "next/dynamic";
+import { useState } from "react";
 
-const DynAthleteMap = dynamic(() => import('../components/AthleteMap'), { ssr: false });
 
 function Dashboard() {
+  const [view, setView] = useState<"leader" | "athlete" | "metrics">("leader");
 
   return (
-    <div className="app-container pb-16">
-      <Header />
+    <div className="flex flex-col w-[93%] h-full mx-auto pb-4">
+      <Header setView={setView} />
 
-      <div className="grid grid-cols-5 gap-x-4">
-        <div className="col-span-3">
-          <DynAthleteMap />
-        </div>
+      {view === "leader" && (
+        <LeaderBoard />
+      )}
 
-        <div className="col-span-1">
-          <AthleteDetails />
-        </div>
+      {view === "athlete" && (
+        <AthleteBoard />
+      )}
 
-        <div className="col-span-1">
-          <AthleteList />
-        </div>
-      </div>
-
-      <Charts />
-
-      <Monitor />
+      {view === "metrics" && (
+        <MetricBoard />
+      )}
     </div>
   );
 }

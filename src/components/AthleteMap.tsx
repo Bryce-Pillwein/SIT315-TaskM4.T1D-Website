@@ -2,7 +2,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import mqtt from "mqtt";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
@@ -25,6 +25,8 @@ const AthleteMap = () => {
   const { athlete } = useAthleteDataContext();  // Get athlete data from the provider
   const [athleteLocations, setAthleteLocations] = useState<{ [athleteId: string]: AthleteLocation }>({});
   const [athleteColors, setAthleteColors] = useState<{ [athleteId: string]: string }>({}); // Store colors
+  const mapRef = useRef<any>(null);
+
 
   useEffect(() => {
     // Connect to the MQTT broker
@@ -99,10 +101,29 @@ const AthleteMap = () => {
     return () => clearInterval(interval);
   }, []);
 
+  /**
+   * Handle Map & Cleanup
+   */
+  useEffect(() => {
+    if (!mapRef.current) {
+      console.log("Map initialized");
+      // The mapRef will hold the reference to the map
+      mapRef.current = true;
+    }
+
+    return () => {
+      // const map = document.getElementById("map-container");
+      // console.log(map);
+      // if (map) {
+      //   map.remove();
+      // }
+    }
+  }, []);
 
   return (
-    <div className="bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95">
-      <MapContainer center={[-37.84986, 145.11481]} zoom={13} style={{ height: "500px", width: "100%" }}>
+    <div className="bg-hsl-l100 p-4 rounded-md shadow-sm border border-hsl-l95 h-full">
+      <MapContainer center={[-37.84986, 145.11481]} zoom={13} style={{ width: "100%", height: "100%" }}
+        ref={mapRef} id="map-container">
 
         <TileLayer attribution="&copy; OpenStreetMap" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 

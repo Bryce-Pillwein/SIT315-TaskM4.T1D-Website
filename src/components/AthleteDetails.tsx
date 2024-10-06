@@ -63,7 +63,7 @@ const AthleteDetails = () => {
 
           {/* Pace */}
           <div className="text-center my-8">
-            <p className="text-4xl font-sdisplay font-bold">{pace ? pace.toFixed(2) : 'N/A'} min/km</p>
+            <p className="text-4xl font-sdisplay font-bold">{pace ? pace.toFixed(0) : 'N/A'} min/km</p>
           </div>
 
           {/* Heart Rate */}
